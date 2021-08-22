@@ -75,6 +75,7 @@ public:
     bool is_float();
     void assert_type(Env *, ValueType, const char *);
     nat_int_t to_nat_int_t();
+    ValuePtr try_convert_to_int_or_raise(Env *env);
 
 private:
     void hydrate();

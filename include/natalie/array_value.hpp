@@ -163,6 +163,8 @@ private:
     Vector<ValuePtr> m_vector {};
 
     bool _flatten_in_place(Env *, nat_int_t depth, Hashmap<ArrayValue *> visited_arrays = Hashmap<ArrayValue *> {});
+
+    std::pair<size_t, bool> resolve_index(nat_int_t);
 };
 
 }

@@ -487,15 +487,19 @@ ValuePtr ArrayValue::drop(Env *env, ValuePtr n) {
 }
 
 ValuePtr ArrayValue::delete_at(Env *env, ValuePtr n) {
-    n->assert_type(env, Value::Type::Integer, "Integer");
-    nat_int_t n_value = n->as_integer()->to_nat_int_t();
+    this->assert_not_frozen(env);
+    
+    nat_int_t n_value = n.try_convert_to_int_or_raise(env)->as_integer()->to_nat_int_t();
 
-    ArrayValue *array = new ArrayValue();
-    for (size_t k = n_value; k < size(); ++k) {
-        array->push((*this)[k]);
+    auto [index, resolved] = resolve_index(n_value);
+
+    if (resolved) {
+        auto value = (*this)[index];
+        m_vector.remove(index);
+        return value;
     }
 
-    return array;
+    return nullptr;
 }
 
 ValuePtr ArrayValue::last(Env *env, ValuePtr n) {
@@ -960,6 +964,23 @@ ValuePtr ArrayValue::concat(Env *env, size_t argc, ValuePtr *args) {
     }
 
     return this;
+}
+
+std::pair<size_t, bool> ArrayValue::resolve_index(nat_int_t nat_index) {
+    nat_int_t index { nat_index };
+
+    if (nat_index < 0)
+        index += size();
+
+    if (index < 0) 
+        return { 0, false };
+
+    size_t size_t_index = static_cast<size_t>(index);
+
+    if (size_t_index >= size())
+        return { 0, false };
+
+    return { size_t_index, true };
 }
 
 ValuePtr ArrayValue::rindex(Env *env, ValuePtr object, Block *block) {

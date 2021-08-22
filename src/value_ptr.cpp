@@ -68,4 +68,21 @@ nat_int_t ValuePtr::to_nat_int_t() {
     return value()->as_integer()->to_nat_int_t();
 }
 
+ValuePtr ValuePtr::try_convert_to_int_or_raise(Env *env) {
+    if (is_integer()) {
+        return *this;
+    }
+
+    auto sym_to_i = SymbolValue::intern("to_i");
+    auto sym_to_int = SymbolValue::intern("to_int");
+
+    if (value()->respond_to(env, sym_to_i)) {
+        return send(env, sym_to_i);
+    } else if (value()->respond_to(env, sym_to_int)) {
+        return send(env, sym_to_int);
+    } else {
+        env->raise("TypeError", "no implicit conversion of {} into Integer", value()->klass()->class_name_or_blank());
+    }
+}
+
 }
