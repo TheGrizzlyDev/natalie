@@ -486,6 +486,18 @@ ValuePtr ArrayValue::drop(Env *env, ValuePtr n) {
     return array;
 }
 
+ValuePtr ArrayValue::delete_at(Env *env, ValuePtr n) {
+    n->assert_type(env, Value::Type::Integer, "Integer");
+    nat_int_t n_value = n->as_integer()->to_nat_int_t();
+
+    ArrayValue *array = new ArrayValue();
+    for (size_t k = n_value; k < size(); ++k) {
+        array->push((*this)[k]);
+    }
+
+    return array;
+}
+
 ValuePtr ArrayValue::last(Env *env, ValuePtr n) {
     auto has_count = n != nullptr;
 

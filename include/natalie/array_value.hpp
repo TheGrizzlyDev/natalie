@@ -103,6 +103,7 @@ public:
     ValuePtr concat(Env *, size_t, ValuePtr *);
     ValuePtr dig(Env *, size_t, ValuePtr *);
     ValuePtr drop(Env *, ValuePtr);
+    ValuePtr delete_at(Env *, ValuePtr);
     ValuePtr each(Env *, Block *);
     ValuePtr eq(Env *, ValuePtr);
     ValuePtr eql(Env *, ValuePtr);
