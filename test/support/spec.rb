@@ -300,6 +300,20 @@ class BeKindOfExpectation
   end
 end
 
+class BeEmpyExpectation
+  def match(subject)
+    if (subject.length > 0)
+      raise SpecFailedException, subject.inspect + ' should be empty but has size ' + subject.length
+    end
+  end
+
+  def inverted_match(subject)
+    if (subject.length == 0)
+      raise SpecFailedException, subject.inspect + ' should not be empty'
+    end
+  end
+end
+
 class EqlExpectation
   def initialize(other)
     @other = other
@@ -645,6 +659,10 @@ class Object
 
   def be_an_instance_of(klass)
     BeKindOfExpectation.new(klass)
+  end
+
+  def be_empty(klass)
+    BeEmpyExpectation.new
   end
 
   def eql(other)

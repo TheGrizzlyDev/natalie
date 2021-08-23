@@ -27,7 +27,7 @@ describe "Array#delete_if" do
     array.delete_if { |x| true }.should equal(array)
   end
 
-  it "returns an Enumerator if no block given, and the enumerator can modify the original array" do
+  fit "returns an Enumerator if no block given, and the enumerator can modify the original array" do
     enum = @a.delete_if
     enum.should be_an_instance_of(Enumerator)
     @a.should_not be_empty

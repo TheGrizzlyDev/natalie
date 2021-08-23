@@ -491,6 +491,38 @@ ValuePtr ArrayValue::drop(Env *env, ValuePtr n) {
     return array;
 }
 
+ValuePtr ArrayValue::delete_at(Env *env, ValuePtr n) {
+    this->assert_not_frozen(env);
+
+    nat_int_t n_value = n.try_convert_to_int_or_raise(env)->as_integer()->to_nat_int_t();
+
+    auto [index, resolved] = resolve_index(n_value);
+
+    if (resolved) {
+        auto value = (*this)[index];
+        m_vector.remove(index);
+        return value;
+    }
+
+    return nullptr;
+}
+
+ValuePtr ArrayValue::delete_if(Env *env, Block *block) {
+    if (!block)
+        return _send(env, SymbolValue::intern("enum_for"), { SymbolValue::intern("delete_if") });
+
+    this->assert_not_frozen(env);
+
+    for (size_t i = size(); i > 0; --i) {
+        auto item = (*this)[i - 1];
+        ValuePtr result = NAT_RUN_BLOCK_AND_POSSIBLY_BREAK(env, block, 1, &item, nullptr);
+        if (result->is_truthy()) {
+            m_vector.remove(i - 1);
+        }
+    }
+    return this;
+}
+
 ValuePtr ArrayValue::delete_item(Env *env, ValuePtr target, Block *block) {
     ValuePtr deleted_item = NilValue::the();
 
@@ -513,22 +545,6 @@ ValuePtr ArrayValue::delete_item(Env *env, ValuePtr target, Block *block) {
     }
 
     return deleted_item;
-}
-
-ValuePtr ArrayValue::delete_at(Env *env, ValuePtr n) {
-    this->assert_not_frozen(env);
-
-    nat_int_t n_value = n.try_convert_to_int_or_raise(env)->as_integer()->to_nat_int_t();
-
-    auto [index, resolved] = resolve_index(n_value);
-
-    if (resolved) {
-        auto value = (*this)[index];
-        m_vector.remove(index);
-        return value;
-    }
-
-    return nullptr;
 }
 
 ValuePtr ArrayValue::last(Env *env, ValuePtr n) {
