@@ -513,13 +513,20 @@ ValuePtr ArrayValue::delete_if(Env *env, Block *block) {
 
     this->assert_not_frozen(env);
 
-    for (size_t i = size(); i > 0; --i) {
-        auto item = (*this)[i - 1];
+    Vector<size_t> marked_indexes;
+
+    for (size_t i = 0; i < size(); ++i) {
+        auto item = (*this)[i];
         ValuePtr result = NAT_RUN_BLOCK_AND_POSSIBLY_BREAK(env, block, 1, &item, nullptr);
         if (result->is_truthy()) {
-            m_vector.remove(i - 1);
+            marked_indexes.push(i);
         }
     }
+
+    while (! marked_indexes.is_empty()) {
+        m_vector.remove(marked_indexes.pop());
+    }
+
     return this;
 }
 

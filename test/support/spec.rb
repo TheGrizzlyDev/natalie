@@ -661,7 +661,7 @@ class Object
     BeKindOfExpectation.new(klass)
   end
 
-  def be_empty(klass)
+  def be_empty()
     BeEmpyExpectation.new
   end
 
