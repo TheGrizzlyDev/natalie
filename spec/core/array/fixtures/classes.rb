@@ -122,8 +122,7 @@ module ArraySpecs
       @@compared
     end
 
-    # TODO: Natalie raises NoMethodError (private method called, even though this is protected?)
-    # protected
+    protected
     attr_accessor :order
   end
 
