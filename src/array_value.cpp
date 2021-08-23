@@ -492,14 +492,14 @@ ValuePtr ArrayValue::drop(Env *env, ValuePtr n) {
 }
 
 ValuePtr ArrayValue::delete_item(Env *env, ValuePtr target, Block *block) {
-    ValuePtr deleted_item = nullptr;
+    ValuePtr deleted_item = NilValue::the();
 
     for (size_t i = size(); i > 0; --i) {
         auto item = (*this)[i - 1];
         if (item->neq(env, target))
             continue;
 
-        if (deleted_item == nullptr) {
+        if (deleted_item->is_nil()) {
             // frozen assertion only happens if any item needs to in fact be deleted
             this->assert_not_frozen(env);
             deleted_item = item;
@@ -508,7 +508,7 @@ ValuePtr ArrayValue::delete_item(Env *env, ValuePtr target, Block *block) {
         m_vector.remove(i - 1);
     }
 
-    if (deleted_item == nullptr && block) {
+    if (deleted_item->is_nil() && block) {
         return NAT_RUN_BLOCK_AND_POSSIBLY_BREAK(env, block, 0, nullptr, nullptr);
     }
 
