@@ -486,9 +486,33 @@ ValuePtr ArrayValue::drop(Env *env, ValuePtr n) {
     return array;
 }
 
+ValuePtr ArrayValue::delete_item(Env *env, ValuePtr target, Block *block) {
+    ValuePtr deleted_item = nullptr;
+
+    for (size_t i = size(); i > 0; --i) {
+        auto item = (*this)[i - 1];
+        if (item->neq(env, target))
+            continue;
+
+        if (deleted_item == nullptr) {
+            // frozen assertion only happens if any item needs to in fact be deleted
+            this->assert_not_frozen(env);
+            deleted_item = item;
+        }
+
+        m_vector.remove(i - 1);
+    }
+
+    if (deleted_item == nullptr && block) {
+        return NAT_RUN_BLOCK_AND_POSSIBLY_BREAK(env, block, 0, nullptr, nullptr);
+    }
+
+    return deleted_item;
+}
+
 ValuePtr ArrayValue::delete_at(Env *env, ValuePtr n) {
     this->assert_not_frozen(env);
-    
+
     nat_int_t n_value = n.try_convert_to_int_or_raise(env)->as_integer()->to_nat_int_t();
 
     auto [index, resolved] = resolve_index(n_value);
@@ -972,7 +996,7 @@ std::pair<size_t, bool> ArrayValue::resolve_index(nat_int_t nat_index) {
     if (nat_index < 0)
         index += size();
 
-    if (index < 0) 
+    if (index < 0)
         return { 0, false };
 
     size_t size_t_index = static_cast<size_t>(index);
