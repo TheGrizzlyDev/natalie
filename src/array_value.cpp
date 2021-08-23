@@ -267,8 +267,13 @@ ValuePtr ArrayValue::eq(Env *env, ValuePtr other) {
     if (size() == 0) return TrueValue::the();
     for (size_t i = 0; i < size(); i++) {
         // TODO: could easily be optimized for strings and numbers
+        ValuePtr this_item = (*this)[i];
         ValuePtr item = (*other_array)[i];
-        ValuePtr result = (*this)[i].send(env, "==", 1, &item, nullptr);
+
+        // if it's the same object then we don't need to check equality
+        if (this_item == item) continue;
+
+        ValuePtr result = this_item.send(env, "==", 1, &item, nullptr);
         if (result->type() == Value::Type::False) return result;
     }
     return TrueValue::the();
