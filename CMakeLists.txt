@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 
 project(Natalie)
 
+if(CMAKE_TOOLCHAIN_FILE)
+  message(STATUS "Using toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
+endif(CMAKE_TOOLCHAIN_FILE)
+
 set(default_build_type "Debug")
 set(CMAKE_CXX_FLAGS_DEBUG "-pthread -g -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-warning-option")
 set(CMAKE_CXX_FLAGS_RELEASE "-pthread -g -O2")

@@ -3,19 +3,25 @@
 DOCKER_FLAGS ?= -i -t
 GNUMAKEFLAGS := --no-print-directory
 
+ifndef CMAKE_TOOLCHAIN_PATH
+	CMAKE_ADDITIONAL_FLAGS=
+else
+	CMAKE_ADDITIONAL_FLAGS=-DCMAKE_TOOLCHAIN_FILE="$(CMAKE_TOOLCHAIN_PATH)"
+endif
+
 build:
 	@[ -f .build ] || echo "debug" > .build
 	${MAKE} build_`cat .build`
 
 build_debug:
 	@echo "debug" > .build
-	cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -S . -B build -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_MAKE_PROGRAM="${MAKE}"
+	cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 -S . -B build -DCMAKE_BUILD_TYPE="Debug" -DCMAKE_MAKE_PROGRAM="${MAKE}" $(CMAKE_ADDITIONAL_FLAGS)
 	cmake --build build -j 4
 	cp build/compile_commands.json .
 
 build_release:
 	@echo "release" > .build
-	cmake -S . -B build -DCMAKE_BUILD_TYPE="Release" -DCMAKE_MAKE_PROGRAM="${MAKE}"
+	cmake -S . -B build -DCMAKE_BUILD_TYPE="Release" -DCMAKE_MAKE_PROGRAM="${MAKE}" $(CMAKE_ADDITIONAL_FLAGS)
 	cmake --build build -j 4
 
 bootstrap: build
