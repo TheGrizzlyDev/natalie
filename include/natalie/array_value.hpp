@@ -147,10 +147,11 @@ public:
     ValuePtr union_of(Env *, size_t, ValuePtr *);
     ValuePtr uniq_in_place(Env *, Block *);
     ValuePtr to_h(Env *, Block *);
+    ValuePtr transpose(Env *);
     ValuePtr zip(Env *, size_t, ValuePtr *, Block *);
 
     virtual void visit_children(Visitor &visitor) override final {
-        Value::visit_children(visitor);
+        Value::visit_children(visitor); 
         for (auto val : m_vector) {
             visitor.visit(val);
         }

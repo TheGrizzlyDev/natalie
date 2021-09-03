@@ -1255,6 +1255,10 @@ ValuePtr ArrayValue::to_h(Env *env, Block *block) {
     return to_h_method->call(env, this, 0, nullptr, block);
 }
 
+ValuePtr ArrayValue::transpose(Env *env) {
+    return this;
+}
+
 ValuePtr ArrayValue::try_convert(Env *env, ValuePtr val) {
     auto to_ary = SymbolValue::intern("to_ary");
     if (!val->respond_to(env, to_ary)) {
