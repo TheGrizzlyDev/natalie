@@ -42,6 +42,9 @@ namespace ArrayPacker {
             case 'm':
                 pack_m();
                 break;
+            case 'M':
+                pack_M();
+                break;
             case 'Z':
                 if (m_token.star) {
                     while (!at_end())
@@ -198,7 +201,6 @@ namespace ArrayPacker {
             bool has_valid_count = !m_token.star && m_token.count > 2;
             size_t count = has_valid_count ? (m_token.count - (m_token.count % 3)) : (m_token.count == 0) ? m_source->length() + 3
                                                                                                           : 45;
-
             while (!at_end()) {
                 auto starting_index = m_index;
                 auto start_of_packed_string = m_packed->length();
@@ -227,6 +229,58 @@ namespace ArrayPacker {
                 if (m_token.count != 0)
                     m_packed->append_char('\n');
             }
+        }
+
+        unsigned char nibble_to_hex_char(unsigned char c) {
+            auto nibble = c & 0x0f;
+            return nibble + ((nibble >= 0 && nibble <= 9) ? '0' : ('A' - 0xA));
+        }
+
+        void pack_M() {
+            size_t count = (m_token.star || m_token.count <= 1) ? 72 : m_token.count;
+
+            size_t last_line_index = 0;
+
+            while (!at_end()) {
+                unsigned char c = next();
+
+                // printf("c=%d\n", c);
+
+                if (c == '=') {
+                    m_packed->append_char('=');
+                    m_packed->append_char('3');
+                    m_packed->append_char('D');
+                } else if ((c >= 33 && c <= 126) || c == ' ' || c == '\t') {
+                    m_packed->append_char(c);
+                } else if (c == '\n') {
+                    if (m_packed->last_char() == '\t')
+                        m_packed->append_char('=');
+                    m_packed->append_char(c);
+                } else {
+                    m_packed->append_char('=');
+                    m_packed->append_char(nibble_to_hex_char(c >> 4));
+                    m_packed->append_char(nibble_to_hex_char(c));
+                }
+
+                if ((m_packed->size() - last_line_index) > count) {
+                    m_packed->append_char('=');
+                    m_packed->append_char('\n');
+                    last_line_index = m_packed->size();
+
+                    if (at_end())
+                        return;
+                }
+            }
+
+            if (m_packed->last_char() == '\n') {
+                if (m_packed->size() >= 2 && m_packed->at(m_packed->size() - 2) == '=') {
+                    m_packed->append_char('\n');
+                }
+                return;
+            }
+            m_packed->append_char('=');
+            m_packed->append_char('\n');
+
         }
 
         bool at_end() { return m_index >= m_source->length(); }
