@@ -36,7 +36,8 @@ namespace ArrayPacker {
                 case 'Z':
                 case 'h':
                 case 'H':
-                case 'u': {
+                case 'u':
+                case 'm': {
                     if (at_end())
                         env->raise("ArgumentError", "too few arguments");
 
@@ -45,7 +46,7 @@ namespace ArrayPacker {
                     if (m_source->is_string()) {
                         string = item->as_string()->to_low_level_string();
                     } else if (item->is_nil()) {
-                        if (d == 'u')
+                        if (d == 'u' || d == 'm')
                             env->raise("TypeError", "no implicit conversion of nil into String");
                         string = new String("");
                     } else if (item->respond_to(env, "to_str"_s)) {

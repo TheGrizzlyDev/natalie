@@ -39,6 +39,9 @@ namespace ArrayPacker {
             case 'u':
                 pack_u();
                 break;
+            case 'm':
+                pack_m();
+                break;
             case 'Z':
                 if (m_token.star) {
                     while (!at_end())
@@ -181,6 +184,48 @@ namespace ArrayPacker {
                 }
                 m_packed->insert(start_of_packed_string, ascii_to_uu(has_valid_count ? compute_number_of_bytes() : std::min(count, compute_number_of_bytes())));
                 m_packed->append_char('\n');
+            }
+        }
+
+        unsigned char ascii_to_base64(unsigned char ascii) {
+            constexpr unsigned char six_bit_mask = 0b00111111;
+            constexpr char ascii_alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+            unsigned char six_bit = ascii & six_bit_mask;
+            return ascii_alphabet[six_bit];
+        }
+
+        void pack_m() {
+            bool has_valid_count = !m_token.star && m_token.count > 2;
+            size_t count = has_valid_count ? (m_token.count - (m_token.count % 3)) : (m_token.count == 0) ? m_source->length() + 3
+                                                                                                          : 45;
+
+            while (!at_end()) {
+                auto starting_index = m_index;
+                auto start_of_packed_string = m_packed->length();
+                auto compute_number_of_bytes = [&]() {
+                    return std::min(m_index, m_source->length()) - starting_index;
+                };
+                while (!at_end() && compute_number_of_bytes() < count) {
+                    unsigned char first = next();
+                    auto padding = at_end() ? 1 : 0;
+                    unsigned char second = next();
+                    if (at_end())
+                        padding++;
+                    unsigned char third = next();
+
+                    m_packed->append_char(ascii_to_base64(first >> 2));
+                    m_packed->append_char(ascii_to_base64(first << 4 | second >> 4));
+                    if (padding > 1)
+                        m_packed->append_char('=');
+                    else
+                        m_packed->append_char(ascii_to_base64(second << 2 | third >> 6));
+                    if (padding > 0)
+                        m_packed->append_char('=');
+                    else
+                        m_packed->append_char(ascii_to_base64(third));
+                }
+                if (m_token.count != 0)
+                    m_packed->append_char('\n');
             }
         }
 
