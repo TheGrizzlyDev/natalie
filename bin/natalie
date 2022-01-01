@@ -92,8 +92,8 @@ OptionParser.new do |opts|
 end.parse!
 
 build_type_path = File.expand_path('../.build', __dir__)
-if File.exist?(build_type_path) && File.read(build_type_path).strip == 'release'
-  options[:build] = 'release'
+if File.exist?(build_type_path)
+  options[:build] = File.read(build_type_path).strip
 else
   options[:build] = 'debug'
 end

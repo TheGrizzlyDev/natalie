@@ -204,18 +204,28 @@ module Natalie
     RELEASE_FLAGS = '-pthread -O1'
     DEBUG_FLAGS = '-pthread -g -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unknown-warning-option'
     COVERAGE_FLAGS = '-fprofile-arcs -ftest-coverage'
+    ASAN_FLAGS='-fsanitize=address -O1 -fno-omit-frame-pointer'
 
     def build_flags
       "#{base_build_flags} #{ENV['NAT_CXX_FLAGS']} #{@context[:compile_cxx_flags].join(' ')}"
     end
 
     def link_flags
-      (@context[:compile_ld_flags] - unnecessary_link_flags).join(' ')
+      (@context[:compile_ld_flags] - unnecessary_link_flags + base_linker_flags).join(' ')
     end
 
     def unnecessary_link_flags
       if RUBY_PLATFORM =~ /openbsd/
         ['-ldl']
+      else
+        []
+      end
+    end
+
+    def base_linker_flags
+      case build
+      when 'asan'
+        ['-fsanitize=address']
       else
         []
       end
@@ -229,6 +239,8 @@ module Natalie
         DEBUG_FLAGS
       when 'coverage'
         DEBUG_FLAGS + ' ' + COVERAGE_FLAGS
+      when 'asan'
+        DEBUG_FLAGS + ' ' + ASAN_FLAGS
       else
         raise "unknown build mode: #{build.inspect}"
       end

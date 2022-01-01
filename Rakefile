@@ -9,6 +9,9 @@ task build_debug: [:set_build_debug, :libnatalie]
 desc 'Build Natalie with release optimizations enabled and warnings off'
 task build_release: [:set_build_release, :libnatalie]
 
+desc 'Build Natalie with AddressSanitizer'
+task build_asan: [:set_build_asan, :libnatalie]
+
 desc 'Remove temporary files created during build'
 task :clean do
   rm_rf 'build/build.log'
@@ -26,6 +29,11 @@ task distclean: :clobber
 
 desc 'Run the test suite'
 task test: :build do
+  sh 'bundle exec ruby test/all.rb'
+end
+
+desc 'Run the test suite with AddressSanitizer'
+task test_asan: :build_asan do
   sh 'bundle exec ruby test/all.rb'
 end
 
@@ -139,6 +147,7 @@ require 'tempfile'
 
 task(:set_build_debug) { ENV['BUILD'] = 'debug'; File.write('.build', 'debug') }
 task(:set_build_release) { ENV['BUILD'] = 'release'; File.write('.build', 'release') }
+task(:set_build_asan) { ENV['BUILD'] = 'asan'; File.write('.build', 'asan') }
 
 task libnatalie: [
   :update_submodules,
@@ -298,6 +307,12 @@ def cxx_flags
       '-fPIC',
       '-g',
       '-O2',
+    ]
+  when 'asan'
+    [
+      '-fsanitize=address',
+      '-O1',
+      '-fno-omit-frame-pointer'
     ]
   else
     [
