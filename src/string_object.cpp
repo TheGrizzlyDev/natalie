@@ -158,7 +158,9 @@ Value StringObject::center(Env *env, Value length, Value padstr) {
 }
 
 Value StringObject::capitalize(Env *env, Args args) {
-    return {};
+    StringObject* copy { this };
+    copy->capitalize_in_place(env, args);
+    return copy;
 }
 
 Value StringObject::capitalize_in_place(Env *env, Args args) {
