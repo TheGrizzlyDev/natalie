@@ -248,6 +248,8 @@ public:
     Value bytes(Env *, Block *);
     Value byteslice(Env *, Value, Value);
     Value center(Env *, Value, Value);
+    Value capitalize(Env *, Args);
+    Value capitalize_in_place(Env *, Args);
     Value chr(Env *);
     Value chomp(Env *, Value) const;
     Value chomp_in_place(Env *, Value);

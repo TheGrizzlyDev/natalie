@@ -157,6 +157,14 @@ Value StringObject::center(Env *env, Value length, Value padstr) {
     return new StringObject { result, m_encoding };
 }
 
+Value StringObject::capitalize(Env *env, Args args) {
+    return {};
+}
+
+Value StringObject::capitalize_in_place(Env *env, Args args) {
+    return {};
+}
+
 Value StringObject::chomp(Env *env, Value record_separator) const {
     auto new_str = new StringObject { *this };
     new_str->chomp_in_place(env, record_separator);
