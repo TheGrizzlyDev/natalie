@@ -434,6 +434,37 @@ public:
     }
 
     /**
+     * Capitalizes this string in place.
+     * Returns true if the string has been changed.
+     *
+     * ```
+     * auto text = String { "abc" };
+     * assert(text.capitalize());
+     * assert_str_eq("Abc", text);
+     * ```
+     * 
+     * Returns false if the string has not been changed.
+     *
+     * ```
+     * auto text = String { "Abc" };
+     * assert(! text.capitalize());
+     * assert_str_eq("Abc", text);
+     * ```
+     */
+    bool capitalize() {
+        bool changed = false;
+        for (size_t i = 0; i < m_length; i++) {
+            auto original = m_str[i];
+            auto edited = i > 0 ? tolower(original) : toupper(original);
+            if (original != edited) {
+                m_str[i] = edited;
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    /**
      * Returns a new copy of the String.
      *
      * ```

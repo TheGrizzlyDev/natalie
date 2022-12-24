@@ -164,7 +164,13 @@ Value StringObject::capitalize(Env *env, Args args) {
 }
 
 Value StringObject::capitalize_in_place(Env *env, Args args) {
-    return {};
+    assert_not_frozen(env);
+
+    if (this->m_string.capitalize()) {
+        return this;
+    }
+
+    return NilObject::the();
 }
 
 Value StringObject::chomp(Env *env, Value record_separator) const {
